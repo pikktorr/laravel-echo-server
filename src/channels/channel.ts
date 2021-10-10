@@ -1,6 +1,7 @@
 import { PresenceChannel } from './presence-channel';
 import { PrivateChannel } from './private-channel';
 import { Log } from './../log';
+var Redis = require('ioredis')
 
 export class Channel {
     /**
@@ -24,11 +25,20 @@ export class Channel {
     presence: PresenceChannel;
 
     /**
+     * Redis client.
+     */
+    private _redis: any;
+
+    private redisKeyPrefix: string
+
+    /**
      * Create a new channel instance.
      */
     constructor(private io, private options) {
         this.private = new PrivateChannel(options);
         this.presence = new PresenceChannel(io, options);
+        this._redis = new Redis(options.databaseConfig.redis);
+        this.redisKeyPrefix = options.databaseConfig.redis.keyPrefix
 
         if (this.options.devMode) {
             Log.success('Channels are ready.');
@@ -66,6 +76,13 @@ export class Channel {
                 this.io.sockets.connected[socket.id]
                     .broadcast.to(data.channel)
                     .emit(data.event, data.channel, data.data);
+
+                this._redis.publish(this.redisKeyPrefix+data.channel, JSON.stringify({
+                        "event": data.event,
+                        "channel": data.channel,
+                        "data": data.data,
+                        "socket": socket.id,
+                }));
             }
         }
     }
