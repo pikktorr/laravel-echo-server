@@ -1,6 +1,6 @@
 # Laravel Echo Server - Whispers to server
 
-This is a fork of the popular NodeJs server for Laravel Echo broadcasting with Socket.io.
+This is a fork of the popular NodeJs server for Laravel Echo broadcasting with Socket.io. There is a [little guide](https://medium.com/@tthdvd/196481675f31) how to use it properly.
 
 ## Differences
 The only and major difference (yet) from the original source code the feature of whispering to server. When you call Laravel Echo whisper method the socket server will publish the data to same redis channel.
