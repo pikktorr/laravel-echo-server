@@ -77,12 +77,20 @@ export class Channel {
                     .broadcast.to(data.channel)
                     .emit(data.event, data.channel, data.data);
 
-                this._redis.publish(this.redisKeyPrefix+data.channel, JSON.stringify({
+                this.presence.getMembers(data.channel).then((members) => {
+                    let member = members.find((member) => {
+                        return socket.id === member.socketId
+                    })
+
+                    this._redis.publish(this.redisKeyPrefix+data.channel, JSON.stringify({
                         "event": data.event,
                         "channel": data.channel,
                         "data": data.data,
+                        "user": member?.user_info,
                         "socket": socket.id,
-                }));
+                    }));
+                })
+
             }
         }
     }
